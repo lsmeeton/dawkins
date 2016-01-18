@@ -50,7 +50,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Compile Include="utils\nondeterministic.fs" />
-    <Compile Include="organism\organism.fs" />
+    <Compile Include="organism\types.fs" />
+    <Compile Include="organism\operations.fs" />
     <Compile Include="replicate\replicate.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
