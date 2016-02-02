@@ -1,18 +1,20 @@
-﻿module organism.operations
+﻿namespace organism
 
-    open organism.types
+    module operations =
 
-    let identityPhenomeFromGenome (Genome genome) =
-        // identity mapping of the genome to the phenome
-        Phenome(genome) 
+        open organism.types
 
-    let organismFromGenome (phenomeFromGenome : (Genome -> Phenome)) (genome : Genome) =
-        // Shorthand function for building an organism from a genome
-        {genome = genome; phenome = phenomeFromGenome genome}
+        let identityPhenomeFromGenome (Genome genome) =
+            // identity mapping of the genome to the phenome
+            Phenome(genome) 
 
-    let spawnOrganismList (genomeSource : (seq<Genome>)) (organismFromGenome : (Genome -> Organism)) (numberOfOrganisms : int)  = 
-        genomeSource 
-        |> Seq.take numberOfOrganisms 
-        |> Seq.map organismFromGenome
-        |> Seq.toList
+        let organismFromGenome (phenomeFromGenome : (Genome -> Phenome)) (genome : Genome) =
+            // Shorthand function for building an organism from a genome
+            {genome = genome; phenome = phenomeFromGenome genome}
+
+        let spawnOrganismList (genomeSource : (seq<Genome>)) (organismFromGenome : (Genome -> Organism)) (numberOfOrganisms : int)  = 
+            genomeSource 
+            |> Seq.take numberOfOrganisms 
+            |> Seq.map organismFromGenome
+            |> Seq.toList
 
