@@ -13,8 +13,11 @@
             // and a phenome
             {genome : Genome
              phenome : Phenome}
+        
+        type Fitness = 
+            Fitness of float
 
-        type Population = 
-            Population of Organism list
+        type Generation = 
+            Generation of (Organism * Fitness) list
 
     
