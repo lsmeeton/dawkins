@@ -44,6 +44,23 @@
         List.toArray (generateRandomFloatList rnd length)  
 
 
+    // random shuffle
+
+    let randomlyShuffleList (rnd: System.Random) l = 
+        let a = List.toArray l
+
+        let shuffle (rnd: System.Random) a =
+            // An in-place random shuffle
+            let swap (b: _ []) x y = 
+                let tmp = b.[x]
+                b.[x] <- b.[y]
+                b.[y] <- tmp
+            Array.iteri (fun i _ -> swap a i (rnd.Next(i, Array.length a))) a
+
+        shuffle rnd a
+
+        Array.toList a
+
     //Random number generator
     let rnd = new Random()
 
