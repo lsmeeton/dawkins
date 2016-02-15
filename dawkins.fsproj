@@ -57,9 +57,11 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Compile Include="utils\nondeterministic.fs" />
+    <Compile Include="utils\utility.fs" />
     <Compile Include="organism\types.fs" />
     <Compile Include="organism\operations.fs" />
     <Compile Include="replicate\replicate.fs" />
+    <Compile Include="naturalselection\naturalselection.fs" />
     <Compile Include="Main.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
