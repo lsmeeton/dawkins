@@ -10,12 +10,17 @@ open FsUnit
 
 [<TestFixture>]
 type ``Given a Population and Mating Function`` ()=
+    
     let g1 = organism.types.Genome [|1.0..10.0|]
     let g2 = organism.types.Genome [|11.0..20.0|]
 
-    let o1 = {organism.types.genome = g1; organism.types.phenome = organism.operations.identityPhenomeFromGenome g1}
-    let o2 = {organism.types.genome = g2; organism.types.phenome = organism.operations.identityPhenomeFromGenome g2}
-    let p = organism.types.Generation [(o1,organism.types.Fitness 1.0);(o2,organism.types.Fitness 2.0)]
+    let o1 = {organism.types.genome = g1; 
+              organism.types.phenome = organism.operations.identityPhenomeFromGenome g1;
+              organism.types.fitness = organism.types.NoFitness}
+    let o2 = {organism.types.genome = g2; 
+              organism.types.phenome = organism.operations.identityPhenomeFromGenome g2;
+              organism.types.fitness = organism.types.NoFitness}
+    let p = organism.types.Population [o1; o2]
     let emptyOrganismList = []
     
 

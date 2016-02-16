@@ -8,16 +8,20 @@
         type Phenome = 
             Phenome of float array
 
-        type Organism =
-            // A basic organism, contains just a genome 
-            // and a phenome
-            {genome : Genome
-             phenome : Phenome}
-        
         type Fitness = 
-            Fitness of float
+            | NoFitness
+            | Fitness of float
 
-        type Generation = 
-            Generation of (Organism * Fitness) list
+        type Organism =
+            // A basic organism, contains just a genome, 
+            // phenome and fitness
+            {genome : Genome
+             phenome : Phenome
+             fitness : Fitness}
+        
+
+
+        type Population = 
+            Population of Organism list
 
     

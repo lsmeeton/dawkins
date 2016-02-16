@@ -21,19 +21,21 @@
             | :? System.ArgumentException -> None
 
         
-    let mateBinarySplice phenomeFromGenome organism1 organism2 boolList = 
+    let mateBinarySplice costFunction phenomeFromGenome organism1 organism2 boolList = 
+        let fitnessFromGenome = phenomeFromGenome >> costFunction
         match binarySplice organism1.genome organism2.genome boolList with
-            |Some childGenome -> {genome = childGenome; phenome = phenomeFromGenome childGenome} |> Some
+            |Some childGenome -> {genome = childGenome; 
+                                  phenome = phenomeFromGenome childGenome;
+                                  fitness = fitnessFromGenome childGenome} 
+                                  |> Some
             |None -> None
 
     
-    let matingPairsFromPopulation (Generation generation) matingPairsByIndex  = 
+    let matingPairsFromPopulation (Population organisms) matingPairsByIndex  = 
         // return a list of Organism tuples from population according to 
         // the pairs defined in matingTuples
 
-        let organisms = generation |> List.map (fun x -> fst x)
-
-        let matingPairsFromPopulation' (organisms : Organism list) (matingPairsByIndex : (int * int) list) =
+        let matingPairsFromPopulation' organisms matingPairsByIndex  =
             let getOrganism' (orgs : Organism list) index = 
                 try
                     Some orgs.[index]

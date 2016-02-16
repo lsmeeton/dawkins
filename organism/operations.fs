@@ -8,9 +8,12 @@
             // identity mapping of the genome to the phenome
             Phenome(genome) 
 
-        let organismFromGenome phenomeFromGenome genome =
+        let organismFromGenome costFunction phenomeFromGenome genome =
             // Shorthand function for building an organism from a genome
-            {genome = genome; phenome = phenomeFromGenome genome}
+            let fitnessFromGenome = phenomeFromGenome >> costFunction
+            {genome = genome; 
+             phenome = phenomeFromGenome genome;
+             fitness = fitnessFromGenome genome}
 
         let spawnOrganisms genomeSource organismFromGenome numberOfOrganisms  = 
             genomeSource 
@@ -18,8 +21,7 @@
             |> Seq.map organismFromGenome
             |> Seq.toList
 
-        let generationFromOrganisms costFunction organisms = 
+        let generationFromOrganisms organisms = 
               organisms
-              |> List.map (withResult costFunction)
-              |> Generation
+              |> Population
             
