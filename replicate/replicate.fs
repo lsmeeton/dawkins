@@ -61,7 +61,36 @@
             |_ -> matingPairsFromPopulation' organisms matingPairsByIndex
 
 
+    let genericReplicateAndReplaceStrategy matingStrategy (Population generation) =
+        // Given a matingFunction and generation
+        // return a Population 
+        generation
+        |> matingStrategy
+        |> Population
 
+    let genericReplicateAndPreserveStrategy matingStrategy generation = 
+        generation
+        |> matingStrategy
+        |> fun (Population p) -> p @ (generation|>(fun (Population g) -> g))
+        |> Population
+       
+
+    let genericMatingStrategy matingPairsSource matingOperationsSource (Population organisms) = 
+        // A generic mating strategy template
+        let matingPairs = 
+            matingPairsSource 
+            |> Seq.head
+        let matingOperations = 
+            matingOperationsSource 
+            |> Seq.head
+
+        //Some sort of error checking on lengths and sizes etc
+        
+        [for matingPair, matingOperation in 
+        List.zip matingPairs matingOperations 
+        do yield matingOperation organisms.[fst matingPair] organisms.[snd matingPair]]
+        |> List.fold (fun acc o -> match o with |Some o' -> o'::acc |None -> acc) []
+        |> Population
 
 
 
