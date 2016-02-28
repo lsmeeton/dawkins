@@ -32,16 +32,17 @@
 
     // random floats
 
-    let rec randomFloatSeq (rnd : System.Random) = 
-        seq {yield rnd.NextDouble()
-             yield! randomFloatSeq(rnd)}
+    let rec randomFloatSeq (rnd : System.Random) lowerVal upperVal = 
+        let valRange = upperVal - lowerVal
+        seq {yield ((rnd.NextDouble() * valRange) + lowerVal)
+             yield! randomFloatSeq rnd lowerVal upperVal}
 
-    let generateRandomFloatList (rnd : System.Random) (length : int) =
-        let b = randomFloatSeq rnd
+    let generateRandomFloatList (rnd : System.Random) lowerVal upperVal length =
+        let b = randomFloatSeq rnd lowerVal upperVal
         b |> Seq.take length |> Seq.toList 
 
-    let generateRandomFloatArray (rnd : System.Random) (length : int) =
-        List.toArray (generateRandomFloatList rnd length)  
+    let generateRandomFloatArray (rnd : System.Random) lowerVal upperVal length =
+        List.toArray (generateRandomFloatList rnd lowerVal upperVal length)  
 
 
     // random shuffle
