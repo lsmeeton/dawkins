@@ -1,7 +1,8 @@
 ﻿module replicate
 
+    open utility
     open organism.types
-    
+
     let partnerListElements l = 
         let rec partnerListElements' acc l = 
             match l with
@@ -80,9 +81,12 @@
         let matingPairs = 
             matingPairsSource 
             |> Seq.head
+
         let matingOperations = 
             matingOperationsSource 
             |> Seq.head
+            |> truncateList (List.length matingPairs)
+            |> padList (fun o1 o2 -> None) (List.length matingPairs)
 
         //Some sort of error checking on lengths and sizes etc
         
