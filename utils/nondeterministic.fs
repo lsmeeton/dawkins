@@ -19,17 +19,6 @@
         let b = randomBinarySeq rnd
         b |> Seq.take length |> Seq.toList |> RandomBinaryList
 
-    // random bools
-
-    let generateRandomBoolList (rnd : System.Random) (length : int) = 
-        let b = randomBinarySeq rnd
-        
-        let boolFromInt = function
-            |0 -> false
-            |_ -> true
-
-        b |> Seq.take length |> Seq.map boolFromInt |> Seq.toList;;
-
     // random floats
 
     let rec randomFloatSeq (rnd : System.Random) lowerVal upperVal = 
@@ -44,6 +33,18 @@
     let generateRandomFloatArray (rnd : System.Random) lowerVal upperVal length =
         List.toArray (generateRandomFloatList rnd lowerVal upperVal length)  
 
+
+    // random bools
+
+    let generateRandomBoolList (rnd : System.Random) fractionTrue (length : int) = 
+        let b = randomFloatSeq rnd 0.0 1.0
+        
+        let boolFromDiff fractionTrue data = 
+            match fractionTrue - data with
+            |x when x < 0.0 -> false
+            |_ -> true
+
+        b |> Seq.take length |> Seq.map (boolFromDiff fractionTrue) |> Seq.toList;;
 
     // random shuffle
 
