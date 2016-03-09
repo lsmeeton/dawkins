@@ -54,6 +54,7 @@
     <Compile Include="test_organism_operations.fs" />
     <Compile Include="test_replicate.fs" />
     <Content Include="packages.config" />
+    <Compile Include="test_utility.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
