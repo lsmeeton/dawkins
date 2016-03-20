@@ -2,12 +2,14 @@
 // See the 'F# Tutorial' project for more help.
 
 open System
+open System.IO
 
 open nondeterministic
 open utility
 open organism.types
 open organism.operations
 open replicate
+open mutate
 open naturalselection
 
 
@@ -21,8 +23,9 @@ let main argv =
 
     let populationSize = 30
     let genomeLength = 2
-    let nGenerations = 10
+    let nGenerations = 100
 
+    // genome to phenome mapping
     let sphericalPolarFromCartesian (Genome cartesianGenome) = 
         let r = cartesianGenome
                 |>Array.fold (fun acc elem -> acc + elem * elem) 0.
@@ -33,21 +36,16 @@ let main argv =
         |> Phenome
 
     // Prepare matingStrategy
-    let pairsSource =
-        Seq.initInfinite(fun _ -> randomlyShuffleList rnd [0..populationSize-1]
-                                                |> partnerListElements)
+    let pairsSource = genericInfinitePairsSource <| randomlyShuffleList rnd [0..populationSize-1]
 
     let matingFunctionSource = 
-        let matingBinarySplice' = mateBinarySplice (fun p -> NoFitness) (fun (Genome g) -> Phenome g)
+        let matingBinarySplice' = mateBinarySplice (fun p -> NoFitness) sphericalPolarFromCartesian
         let perumteArgs f boolList o1 o2 = f o1 o2 boolList
         let nMatingPairs = populationSize / 2
-        Seq.initInfinite(fun _ -> [for __ in [1 .. nMatingPairs] do yield generateRandomBoolList rnd genomeLength]
+        Seq.initInfinite(fun _ -> [for __ in [1 .. nMatingPairs] do yield generateRandomBoolList rnd 0.5 genomeLength]
                                   |> List.map (perumteArgs matingBinarySplice'))
 
     let matingStrategy = genericReplicateAndPreserveStrategy (genericMatingStrategy pairsSource matingFunctionSource)
-
-    // Prepare mutationStrategy
-    let mutationStrategy = fun x -> x
 
     // Prepare costFunction
     let noFitnessCostFunction (Phenome p) =
@@ -57,8 +55,24 @@ let main argv =
     let firstElementFitness (Phenome p) = 
         p.[0] |> Fitness
 
+    // Prepare mutationStrategy
 
-    // Prepate logger
+    let mutationProbability = 0.5
+    
+    let mutationSource = 
+        Seq.initInfinite(fun _ -> [for __ in [1..populationSize*2] do yield generateRandomFloatArray rnd -0.05 0.05 genomeLength]
+                                  |> List.map (floatStretchMutation sphericalPolarFromCartesian noFitnessCostFunction))
+    let mutationProbabilitySource = 
+        Seq.initInfinite(fun _ -> generateRandomBoolList rnd mutationProbability (populationSize * 2))
+
+    let mutationOperationSource = 
+        Seq.initInfinite(fun _ -> genericMutationOperation mutationProbabilitySource mutationSource)
+
+
+    let mutationStrategy = genericMutateAndPreserveStrategy mutationOperationSource
+
+
+    // Prepare logger
     let simpleLogger generation =
          printfn "Generation: %A\n" generation
 
@@ -76,14 +90,56 @@ let main argv =
                 |NoFitness -> printfn "Fitness not evaluated"
                 |(Fitness f) -> printfn "Fitness: %2.6f" f
 
+
+    let generationPropertiesLogger (Population generation) (generationNo : int) = 
+
+        let getFitness organism = 
+            match organism.fitness with 
+            |Fitness f -> f
+            |NoFitness -> 0.
+
+        let peak = generation.[0] |> getFitness
+
+        let mean = 
+            generation 
+            |> List.fold (fun acc o -> (getFitness o) + acc) 0.0
+            |> fun f -> f / (float (List.length generation))
+
+        let g = generation.[0].genome
+                |> fun (Genome g) -> g
+
+        let x, y = g.[0], g.[1]
+
+        let p = generation.[0].phenome
+                |> fun (Phenome p) -> p
+
+        let r, theta = p.[0], p.[1]
+
+        if generationNo % 1 = 0 then 
+            printfn "let Gen=%d;; let Peak=%2.6f;; let Mean=%2.6f;; let g = [|%2.6f; %2.6f|];; let p = [|%2.6f; %2.6f|];;" generationNo peak mean x y r theta
+            printfn "let fitness = %A" [for o in generation do yield o.fitness]
+
+    let radialLogger (csvFileStream:StreamWriter) (Population generation) generationNo = 
+        for o in generation do 
+            let ge = o.genome
+                     |> fun (Genome g) -> g
+            csvFileStream.WriteLine(sprintf "%2.6f, %2.6f, %d" ge.[0] ge.[1] generationNo)
+
+        generationPropertiesLogger (generation |> Population) generationNo
+
+    use csvFileStream = new StreamWriter("plot.csv")
+    csvFileStream.WriteLine("x, y, n")
+
     // Prepare initial generation
     let genomeSource = 
-        Seq.initInfinite (fun i -> Genome(generateRandomFloatArray rnd genomeLength))
+        Seq.initInfinite (fun i -> Genome(generateRandomFloatArray rnd -1.0 1.0 genomeLength))
 
-    // genome to phenome mapping
+    // genome to organism mapping
     let identityOrganismFromGenome = organismFromGenome noFitnessCostFunction identityPhenomeFromGenome
 
-    let intialGeneration = spawnOrganisms genomeSource identityOrganismFromGenome populationSize
+    let organismFromGenome = organismFromGenome noFitnessCostFunction sphericalPolarFromCartesian
+
+    let intialGeneration = spawnOrganisms genomeSource organismFromGenome populationSize
                            |> Population
 
     // Prepare selectionStrategy
@@ -120,11 +176,13 @@ let main argv =
 
     // Perform genetic algorithm calculations
 
-    let gp = generationPropagator mostFitLogger matingStrategy mutationStrategy selectionStrategy firstElementFitness 
+    let gp = generationPropagator (radialLogger csvFileStream) matingStrategy mutationStrategy selectionStrategy firstElementFitness 
 
     let generations = 
         [1..nGenerations]
         |> List.fold (fun acc p -> (gp (List.head acc) p)::acc) [intialGeneration]
 
+
+    csvFileStream.Close()
 
     0 // return an integer exit code
