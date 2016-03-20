@@ -64,6 +64,11 @@
             |[] -> []
             |_ -> matingPairsFromPopulation' organisms matingPairsByIndex
 
+    let genericInfinitePairsSource (pairFunction : int list) =
+        // Generate an infinite sequence of integer tuples
+        // according to pairFunction
+        Seq.initInfinite(fun _ -> pairFunction |> partnerListElements)
+
 
     let genericReplicateAndReplaceStrategy matingStrategy (Population generation) =
         // Given a matingFunction and generation
