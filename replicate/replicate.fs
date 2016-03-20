@@ -12,24 +12,27 @@
         partnerListElements' [] l
 
     let binarySplice (Genome g1) (Genome g2) (boolList :  bool list) = 
-        let binarySplice' g1 g2 boolList =
-            Array.zip3 g1 g2 (List.toArray boolList) 
+        if Array.length g1 <> Array.length g2 then
+            // This is not ideal behaviour, but condition should never be met ...
+            g1 |> Genome
+        else
+            let boolArray = boolList
+                           |> truncateList (Array.length g1)
+                           |> padList true (Array.length g1)
+                           |> List.toArray
+        
+            Array.zip3 g1 g2 boolArray
             |> Array.map (fun x -> match x with |(a,b,true) -> a|(a,b,false) -> b)
             |> Genome
-        try 
-            binarySplice' g1 g2 boolList |> Some 
-        with
-            | :? System.ArgumentException -> None
 
         
     let mateBinarySplice costFunction phenomeFromGenome organism1 organism2 boolList = 
         let fitnessFromGenome = phenomeFromGenome >> costFunction
-        match binarySplice organism1.genome organism2.genome boolList with
-            |Some childGenome -> {genome = childGenome; 
-                                  phenome = phenomeFromGenome childGenome;
-                                  fitness = fitnessFromGenome childGenome} 
-                                  |> Some
-            |None -> None
+        let childGenome = binarySplice organism1.genome organism2.genome boolList 
+        {genome = childGenome; 
+         phenome = phenomeFromGenome childGenome;
+         fitness = fitnessFromGenome childGenome} 
+                                  
 
     
     let matingPairsFromPopulation (Population organisms) matingPairsByIndex  = 
@@ -86,14 +89,14 @@
             matingOperationsSource 
             |> Seq.head
             |> truncateList (List.length matingPairs)
-            |> padList (fun o1 o2 -> None) (List.length matingPairs)
+            |> padList (fun o1 o2 -> o1) (List.length matingPairs)
 
         //Some sort of error checking on lengths and sizes etc
         
         [for matingPair, matingOperation in 
         List.zip matingPairs matingOperations 
         do yield matingOperation organisms.[fst matingPair] organisms.[snd matingPair]]
-        |> List.fold (fun acc o -> match o with |Some o' -> o'::acc |None -> acc) []
+        //|> List.fold (fun acc o -> match o with |Some o' -> o'::acc |None -> acc) []
         |> Population
 
 
