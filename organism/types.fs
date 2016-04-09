@@ -19,8 +19,6 @@
              phenome : Phenome
              fitness : Fitness}
         
-
-
         type Population = 
             Population of Organism list
 
