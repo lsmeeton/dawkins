@@ -11,10 +11,10 @@
                 |fst::snd::rest -> partnerListElements' ((fst,snd)::acc) rest
         partnerListElements' [] l
 
-    let binarySplice (Genome g1) (Genome g2) (boolList :  bool list) = 
+    let binarySplice (FloatGenome g1) (FloatGenome g2) (boolList :  bool list) = 
         if Array.length g1 <> Array.length g2 then
             // This is not ideal behaviour, but condition should never be met ...
-            g1 |> Genome
+            g1 |> FloatGenome
         else
             let boolArray = boolList
                            |> truncateList (Array.length g1)
@@ -23,7 +23,7 @@
         
             Array.zip3 g1 g2 boolArray
             |> Array.map (fun x -> match x with |(a,b,true) -> a|(a,b,false) -> b)
-            |> Genome
+            |> FloatGenome
 
         
     let mateBinarySplice costFunction phenomeFromGenome organism1 organism2 boolList = 

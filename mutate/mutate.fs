@@ -6,14 +6,14 @@
     let floatShiftMutation phenomeFromGenome costFunction (perturbation : float []) organism =
         // Perturbe the genome of organism by perturbation
         let oldGenome = organism.genome
-                        |> fun (Genome g) -> g
+                        |> fun (FloatGenome g) -> g
 
         let fitnessFromGenome = phenomeFromGenome >> costFunction
 
         if oldGenome.Length = perturbation.Length then
             let newGenome = [for o, p in Array.zip oldGenome perturbation do yield o + p]
                             |> List.toArray
-                            |> Genome
+                            |> FloatGenome
             {genome = newGenome; phenome = phenomeFromGenome newGenome; fitness = fitnessFromGenome newGenome} 
         else // do nothing
             organism
@@ -21,14 +21,14 @@
     let floatStretchMutation phenomeFromGenome costFunction (perturbation : float []) organism =
         // Perturbe the genome of organism by perturbation
         let oldGenome = organism.genome
-                        |> fun (Genome g) -> g
+                        |> fun (FloatGenome g) -> g
 
         let fitnessFromGenome = phenomeFromGenome >> costFunction
 
         if oldGenome.Length = perturbation.Length then
             let newGenome = [for o, p in Array.zip oldGenome perturbation do yield o * p]
                             |> List.toArray
-                            |> Genome
+                            |> FloatGenome
             {genome = newGenome; phenome = phenomeFromGenome newGenome; fitness = fitnessFromGenome newGenome} 
         else // do nothing
             organism
