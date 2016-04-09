@@ -7,7 +7,9 @@ open System.IO
 open nondeterministic
 open utility
 open organism.types
+open organism.signaltypes
 open organism.operations
+open organism.signaloperations
 open replicate
 open mutate
 open naturalselection
@@ -17,24 +19,29 @@ open naturalselection
 let main argv =
 
     // Prepare population
-    // Optimise two-dimensional points to sit at the origin
-    // Genome -> cartesian coords [|x;y|]
-    // Phenome -> spherical polar coords [|r;theta|]
+    // Find the optimal match of a flattened signal to an original
+    // Genome -> SignalGenome
+    // Phenome -> identity mapping to genome
 
     let populationSize = 30
-    let genomeLength = 2
+    let genomeLength = 1024
     let nGenerations = 100
 
-    // genome to phenome mapping
-    let sphericalPolarFromCartesian (Genome cartesianGenome) = 
-        let r = cartesianGenome
-                |>Array.fold (fun acc elem -> acc + elem * elem) 0.
-                |>Math.Sqrt 
-        let theta = Math.Atan2 (cartesianGenome.[1], cartesianGenome.[0])
+    // import inputSignal from CSV
+    let inputSignal = File.ReadAllLines("C:/Users/Lewis/Scratch/NoisySignalData.csv") 
+                      // ignore the headers
+                      |> Array.toList |> List.tail 
+                      // split the string on commas
+                      |> List.map (fun (t : string )-> t.Split [|','|]) 
+                      // convert to float
+                      |> List.map (fun x -> x.[1] |> float)
 
-        [|r;theta|]
-        |> Phenome
+    // instantiate initial genome
+    let initialGenome = signalGenomeFromFloatList inputSignal
 
+    printf "%A" initialGenome
+
+    (*
     // Prepare matingStrategy
     let pairsSource = genericInfinitePairsSource <| randomlyShuffleList rnd [0..populationSize-1]
 
@@ -48,11 +55,11 @@ let main argv =
     let matingStrategy = genericReplicateAndPreserveStrategy (genericMatingStrategy pairsSource matingFunctionSource)
 
     // Prepare costFunction
-    let noFitnessCostFunction (Phenome p) =
+    let noFitnessCostFunction (FloatPhenome p) =
         NoFitness 
 
      // A toy fitness function for debugging and simple testing!
-    let firstElementFitness (Phenome p) = 
+    let firstElementFitness (FloatPhenome p) = 
         p.[0] |> Fitness
 
     // Prepare mutationStrategy
@@ -70,7 +77,7 @@ let main argv =
 
 
     let mutationStrategy = genericMutateAndPreserveStrategy mutationOperationSource
-
+    *)
 
     // Prepare logger
     let simpleLogger generation =
@@ -106,12 +113,12 @@ let main argv =
             |> fun f -> f / (float (List.length generation))
 
         let g = generation.[0].genome
-                |> fun (Genome g) -> g
+                |> fun (FloatGenome g) -> g
 
         let x, y = g.[0], g.[1]
 
         let p = generation.[0].phenome
-                |> fun (Phenome p) -> p
+                |> fun (FloatPhenome p) -> p
 
         let r, theta = p.[0], p.[1]
 
@@ -122,17 +129,17 @@ let main argv =
     let radialLogger (csvFileStream:StreamWriter) (Population generation) generationNo = 
         for o in generation do 
             let ge = o.genome
-                     |> fun (Genome g) -> g
+                     |> fun (FloatGenome g) -> g
             csvFileStream.WriteLine(sprintf "%2.6f, %2.6f, %d" ge.[0] ge.[1] generationNo)
 
         generationPropertiesLogger (generation |> Population) generationNo
 
     use csvFileStream = new StreamWriter("plot.csv")
     csvFileStream.WriteLine("x, y, n")
-
+    (*
     // Prepare initial generation
     let genomeSource = 
-        Seq.initInfinite (fun i -> Genome(generateRandomFloatArray rnd -1.0 1.0 genomeLength))
+        Seq.initInfinite (fun i -> FloatGenome(generateRandomFloatArray rnd -1.0 1.0 genomeLength))
 
     // genome to organism mapping
     let identityOrganismFromGenome = organismFromGenome noFitnessCostFunction identityPhenomeFromGenome
@@ -181,7 +188,7 @@ let main argv =
     let generations = 
         [1..nGenerations]
         |> List.fold (fun acc p -> (gp (List.head acc) p)::acc) [intialGeneration]
-
+    *)
 
     csvFileStream.Close()
 
