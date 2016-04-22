@@ -1,6 +1,7 @@
 ﻿module replicate
 
     open utility
+    open inputlegallity
     open organism.types
 
     let partnerListElements l = 
@@ -84,7 +85,25 @@
         |> Population
        
 
-    let genericMatingStrategy matingPairsSource matingOperationsSource (Population organisms) = 
+    let _genericMatingStrategy matingPairs matingOperations (Population organisms) = 
+        // A generic mating strategy template
+
+        // matingPairs and matingOperations should be the same length
+        if List.length matingPairs <> List.length matingOperations then
+            IllegalInputLength
+        else
+            //Some sort of error checking on lengths and sizes etc
+            try
+                [for matingPair, matingOperation in 
+                List.zip matingPairs matingOperations 
+                do yield matingOperation organisms.[fst matingPair] organisms.[snd matingPair]]
+                //|> List.fold (fun acc o -> match o with |Some o' -> o'::acc |None -> acc) []
+                |> Population
+                |> ValidInput
+            with
+                | :? System.ArgumentException -> IllegalContainerIndex
+
+    let genericMatingStrategy matingPairsSource matingOperationsSource organisms = 
         // A generic mating strategy template
         let matingPairs = 
             matingPairsSource 
@@ -98,11 +117,11 @@
 
         //Some sort of error checking on lengths and sizes etc
         
-        [for matingPair, matingOperation in 
-        List.zip matingPairs matingOperations 
-        do yield matingOperation organisms.[fst matingPair] organisms.[snd matingPair]]
-        //|> List.fold (fun acc o -> match o with |Some o' -> o'::acc |None -> acc) []
-        |> Population
+        match _genericMatingStrategy matingPairs matingOperations organisms with
+            |ValidInput p -> p
+            |IllegalContainerIndex -> raise IllegalContainerIndexError 
+            |IllegalInputLength -> raise IllegalInputLengthError 
+
 
 
 
