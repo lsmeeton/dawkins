@@ -1,19 +1,24 @@
 ﻿namespace organism
 
     module signaltypes =
-        type Signal = 
+        type SignalDelta = 
             |Delta of float
             |NoDelta
+
+        type Signal = 
+            // An initial reference value plus a list of deltas
+            | LiveSignal of float * SignalDelta list
+            | EmptySignal
 
     module types = 
     
         type Genome = 
             |FloatGenome of float array
-            |SignalGenome of float * signaltypes.Signal list
+            |SignalGenome of signaltypes.Signal
         
         type Phenome = 
             |FloatPhenome of float array
-            |SignalPhenome of float * signaltypes.Signal list
+            |SignalPhenome of signaltypes.Signal
 
         type Fitness = 
             | NoFitness

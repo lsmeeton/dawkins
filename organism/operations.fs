@@ -4,24 +4,27 @@
         open utility
         open organism.signaltypes
         open organism.types
+        
+        let signalDiffFromFloat tol flt = 
+            match tol, flt with
+            |tol, flt when (abs flt) < (abs tol) -> NoDelta
+            |_ -> flt |> Delta        
+            
+        let signalFromFloats tol lastElement thisElement = 
+            signalDiffFromFloat tol (thisElement - lastElement)
 
-        let signalGenomeFromFloatList floatList = 
+        let signalGenomeFromFloatList tol floatList = 
 
-            if List.length floatList <= 2 then
-                (0.0,[NoDelta]) |> SignalGenome
-            else
-
-                let signalFromFloats lastElement thisElement = 
-                    match thisElement - lastElement with 
-                    | 0.0 -> NoDelta
-                    | _ -> thisElement - lastElement |> Delta
-
-                let rec signalGenomeFromFloatList' signalList lastElement remainingFloatList =
+            let rec signalGenomeFromFloatList' signalList lastElement remainingFloatList =
                     match remainingFloatList with
                     |[]     -> signalList
-                    |hd::tl -> let signal = signalFromFloats lastElement hd
+                    |hd::tl -> let signal = signalFromFloats tol lastElement hd
                                let updatedSignalList = signal::signalList
                                signalGenomeFromFloatList' updatedSignalList hd tl
+
+            match floatList with
+            | floatList when List.length floatList < 2 -> EmptySignal |> SignalGenome
+            |_ ->
 
                 let lastElement = List.head floatList
                 let remainingFloatList = List.tail floatList
@@ -29,27 +32,22 @@
                 (floatList.[0],
                  signalGenomeFromFloatList' []  lastElement remainingFloatList
                  |> List.rev)
+                 |> LiveSignal
                  |> SignalGenome
 
         let floatListFromSignalGenome genome = 
-
-            let floatFromSignal (lastElement, signal) =
+        
+            let rec floatListFromSignalGenome' floatList signal = 
                 match signal with
-                    |Delta d -> lastElement + d
-                    |NoDelta -> lastElement
-
-            let rec floatListFromSignalGenome' floatList lastElement remainingSignalList = 
-                match remainingSignalList with
-                    |[]     -> floatList
-                    |hd::tl -> let flt = floatFromSignal (lastElement, hd)
-                               let updatedFloatList = flt::floatList
-                               floatListFromSignalGenome' updatedFloatList flt tl
+                    |reference, [] -> reference::floatList
+                    |reference, (Delta s)::tail -> floatListFromSignalGenome' ((reference + s)::floatList) (reference + s, tail)
+                    |reference, (NoDelta)::tail -> floatListFromSignalGenome' (reference::floatList) (reference, tail)
             
             match genome with
-                |FloatGenome _ -> []
-                |SignalGenome (firstSignal, signals) 
-                    -> floatListFromSignalGenome' [] firstSignal signals
+                |SignalGenome (LiveSignal (reference, signalDiffs))
+                    -> floatListFromSignalGenome' [] (reference, signalDiffs)
                        |> List.rev
+                |_ -> []
                     
 
             
@@ -62,7 +60,7 @@
             // identity mapping of the genome to the phenome
             match genome with
                 |FloatGenome f -> FloatPhenome(f)
-                |SignalGenome (s1,s2) -> SignalPhenome(s1,s2) 
+                |SignalGenome signal -> SignalPhenome signal
 
         let organismFromGenome costFunction phenomeFromGenome genome =
             // Shorthand function for building an organism from a genome

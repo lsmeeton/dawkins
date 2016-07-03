@@ -37,7 +37,8 @@ let main argv =
                       |> List.map (fun x -> x.[1] |> float)
 
     // instantiate initial genome
-    let initialGenome = signalGenomeFromFloatList inputSignal
+    let tolerance = 0.
+    let initialGenome = signalGenomeFromFloatList tolerance inputSignal
 
     printf "%A" initialGenome
 
