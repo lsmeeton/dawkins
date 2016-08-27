@@ -11,8 +11,8 @@ open FsUnit
 [<TestFixture>]
 type ``Given a Population and Mating Function`` ()=
     
-    let g1 = organism.types.Genome [|1.0..10.0|]
-    let g2 = organism.types.Genome [|11.0..20.0|]
+    let g1 = organism.types.FloatGenome [|1.0..10.0|]
+    let g2 = organism.types.FloatGenome [|11.0..20.0|]
 
     let o1 = {organism.types.genome = g1; 
               organism.types.phenome = organism.operations.identityPhenomeFromGenome g1;
