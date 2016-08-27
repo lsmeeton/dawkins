@@ -77,9 +77,9 @@ type ``Given a generic list of elements`` ()=
 [<TestFixture>]
 type ``Given two Genomes and a list of bools`` ()=
     
-    let g1 = organism.types.Genome [|1.0..10.0|]
-    let g2 = organism.types.Genome [|11.0..20.0|]
-    let g3 = organism.types.Genome [|11.0..19.0|]
+    let g1 = organism.types.FloatGenome [|1.0..10.0|]
+    let g2 = organism.types.FloatGenome [|11.0..20.0|]
+    let g3 = organism.types.FloatGenome [|11.0..19.0|]
 
     let boolList1 = [for i in [1..5] do yield true, false]
                     |>List.fold (fun acc x -> (fst x)::(snd x)::acc) []
@@ -90,8 +90,8 @@ type ``Given two Genomes and a list of bools`` ()=
     let boolList3 = [for i in [1..5] do yield false, true]
                     |>List.fold (fun acc x -> (fst x)::(snd x)::acc) [false]
 
-    let out_g1 = organism.types.Genome [|1.0; 12.0; 3.0; 14.0; 5.0; 16.0; 7.0; 18.0; 9.0; 20.0|]
-    let out_g2 = organism.types.Genome [|1.0; 2.0; 13.0; 4.0; 15.0; 6.0; 17.0; 8.0; 19.0; 10.0|]
+    let out_g1 = organism.types.FloatGenome [|1.0; 12.0; 3.0; 14.0; 5.0; 16.0; 7.0; 18.0; 9.0; 20.0|]
+    let out_g2 = organism.types.FloatGenome [|1.0; 2.0; 13.0; 4.0; 15.0; 6.0; 17.0; 8.0; 19.0; 10.0|]
     
 
     [<Test>] member x.
@@ -117,9 +117,9 @@ type ``Given two Genomes and a list of bools`` ()=
 [<TestFixture>]
 type ``Given a source of mating pairs, a source of mating operations and a population`` ()=
     
-    let g1 = organism.types.Genome [|1.0|]
-    let g2 = organism.types.Genome [|2.0|]
-    let g3 = organism.types.Genome [|3.0|]
+    let g1 = organism.types.FloatGenome [|1.0|]
+    let g2 = organism.types.FloatGenome [|2.0|]
+    let g3 = organism.types.FloatGenome [|3.0|]
 
     let o1 = {organism.types.genome = g1;
               organism.types.phenome = organism.operations.identityPhenomeFromGenome g1;

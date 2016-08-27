@@ -17,16 +17,16 @@ type ``Given a Genome and Phenome which are identical`` ()=
 [<TestFixture>]
 type ``Given a sequence of Genomes and a genome-to-organism mapping`` ()=
     let nOrganisms = 10
-    let gSeq = [for i in [1..nOrganisms] do yield organism.types.Genome [|float i|]]
+    let gSeq = [for i in [1..nOrganisms] do yield organism.types.FloatGenome [|float i|]]
                |> List.toSeq
     let oFromG = fun g -> {organism.types.genome = g; 
                            organism.types.phenome = organism.operations.identityPhenomeFromGenome g;
                            organism.types.fitness = organism.types.NoFitness}
-    let oLst = [for i in [1..nOrganisms] do yield {organism.types.genome = organism.types.Genome [|float i|]; 
-                                                   organism.types.phenome = organism.types.Phenome [|float i|];
+    let oLst = [for i in [1..nOrganisms] do yield {organism.types.genome = organism.types.FloatGenome [|float i|]; 
+                                                   organism.types.phenome = organism.types.FloatPhenome [|float i|];
                                                    organism.types.fitness = organism.types.NoFitness}]
-    let oLstShorter = [for i in [1..(nOrganisms-1)] do yield {organism.types.genome = organism.types.Genome [|float i|]; 
-                                                   organism.types.phenome = organism.types.Phenome [|float i|];
+    let oLstShorter = [for i in [1..(nOrganisms-1)] do yield {organism.types.genome = organism.types.FloatGenome [|float i|]; 
+                                                   organism.types.phenome = organism.types.FloatPhenome [|float i|];
                                                    organism.types.fitness = organism.types.NoFitness}]
 
     [<Test>] member x.
